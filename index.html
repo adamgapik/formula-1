@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>F1 Dashboard 2026 | Red Bull Territory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0c12;
+            color: #eef2ff;
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #e10600);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo p {
+            font-size: 12px;
+            color: #8a9bb0;
+        }
+        .bull-badge {
+            background: #1e2028;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            border-left: 3px solid #e10600;
+        }
+        .bull-badge span {
+            color: #e10600;
+        }
+
+        /* stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: #12141c;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #20232c;
+            transition: 0.2s;
+        }
+        .stat-card:hover {
+            border-color: #e10600;
+            transform: translateY(-2px);
+        }
+        .stat-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #8a9bb0;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .stat-sub {
+            font-size: 13px;
+            color: #5a6e84;
+            margin-top: 8px;
+        }
+
+        /* next race highlight */
+        .next-race {
+            background: linear-gradient(135deg, #1a1d2a, #0f1118);
+            border-radius: 28px;
+            padding: 28px;
+            margin-bottom: 40px;
+            border: 1px solid #2a2e3c;
+        }
+        .next-race h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e10600;
+        }
+        .race-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .race-name {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .race-date {
+            color: #b4c8e0;
+        }
+        .race-track {
+            font-size: 14px;
+            color: #8a9bb0;
+        }
+        .countdown {
+            background: #1e2028;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+        }
+
+        /* tables */
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 32px 0 20px 0;
+            padding-left: 12px;
+            border-left: 4px solid #e10600;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: #12141c;
+            border: 1px solid #20232c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #20232c;
+        }
+        th {
+            background: #1a1d2a;
+            color: #b4c8e0;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #1a1d2a;
+        }
+        .red-bull-row {
+            background: rgba(225, 6, 0, 0.08);
+            border-left: 3px solid #e10600;
+        }
+        .team-red {
+            color: #e10600;
+            font-weight: 600;
+        }
+        .points {
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* calendar list */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .race-item {
+            background: #12141c;
+            border-radius: 16px;
+            padding: 14px 18px;
+            border: 1px solid #20232c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .race-item.completed {
+            opacity: 0.7;
+        }
+        .race-item.upcoming {
+            border-left: 3px solid #e10600;
+        }
+        .race-round {
+            font-size: 12px;
+            color: #6a85a5;
+        }
+        .race-title {
+            font-weight: 600;
+        }
+        .race-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #1e2028;
+        }
+        .status-upcoming {
+            background: #2a2e3c;
+            color: #b4c8e0;
+        }
+        .status-completed {
+            background: #0f1118;
+            color: #5a6e84;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding: 24px 0;
+            text-align: center;
+            border-top: 1px solid #20232c;
+            font-size: 12px;
+            color: #6a85a5;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+            .race-name {
+                font-size: 18px;
+            }
+            .stat-value {
+                font-size: 26px;
+            }
+            th, td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1>F1 2026</h1>
+            <p>чемпионат мира • данные после Гран-при Японии</p>
+        </div>
+        <div class="bull-badge">
+            🐂 <span>RED BULL TERRITORY</span> • за Макса и Хаджара
+        </div>
+    </div>
+
+    <!-- статистика сезона -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">🏆 лидер гонщиков</div>
+            <div class="stat-value">Kimi Antonelli</div>
+            <div class="stat-sub">72 очка · Mercedes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🏭 лидер конструкторов</div>
+            <div class="stat-value">Mercedes</div>
+            <div class="stat-sub">135 очков</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🏎️ лучший гонщик Red Bull</div>
+            <div class="stat-value">Max Verstappen</div>
+            <div class="stat-sub">12 очков · 9 место в общем зачёте</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">⏱️ следующая гонка</div>
+            <div class="stat-value">Miami</div>
+            <div class="stat-sub">1–3 мая 2026</div>
+        </div>
+    </div>
+
+    <!-- следующий этап (живой акцент) -->
+    <div class="next-race">
+        <h2>🔴 СЛЕДУЮЩАЯ ГОНКА</h2>
+        <div class="race-info">
+            <div>
+                <div class="race-name">🇺🇸 Гран-при Майами (спринт)</div>
+                <div class="race-date">1–3 мая 2026 · Международный автодром Майами</div>
+                <div class="race-track">Miami International Autodrome • 57 кругов + спринт</div>
+            </div>
+            <div class="countdown">
+                ⏳ до старта: менее 2 недель
+            </div>
+        </div>
+    </div>
+
+    <!-- таблица гонщиков -->
+    <div class="section-title">🏁 ЧЕМПИОНАТ ГОНЩИКОВ (топ-15)</div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>Поз.</th><th>Гонщик</th><th>Команда</th><th>Победы</th><th>Очки</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>🇮🇹 Kimi Antonelli</td><td>Mercedes</td><td>2</td><td class="points">72</td></tr>
+                <tr><td>2</td><td>🇬🇧 George Russell</td><td>Mercedes</td><td>1</td><td class="points">63</td></tr>
+                <tr><td>3</td><td>🇲🇨 Charles Leclerc</td><td>Ferrari</td><td>0</td><td class="points">49</td></tr>
+                <tr><td>4</td><td>🇬🇧 Lewis Hamilton</td><td>Ferrari</td><td>0</td><td class="points">41</td></tr>
+                <tr><td>5</td><td>🇬🇧 Lando Norris</td><td>McLaren</td><td>0</td><td class="points">25</td></tr>
+                <tr><td>6</td><td>🇦🇺 Oscar Piastri</td><td>McLaren</td><td>0</td><td class="points">21</td></tr>
+                <tr><td>7</td><td>🇬🇧 Oliver Bearman</td><td>Haas</td><td>0</td><td class="points">17</td></tr>
+                <tr><td>8</td><td>🇫🇷 Pierre Gasly</td><td>Alpine</td><td>0</td><td class="points">15</td></tr>
+                <tr class="red-bull-row"><td>9</td><td>🇳🇱 Max Verstappen</td><td><span class="team-red">Red Bull</span></td><td>0</td><td class="points">12</td></tr>
+                <tr><td>10</td><td>🇳🇿 Liam Lawson</td><td>Racing Bulls</td><td>0</td><td class="points">10</td></tr>
+                <tr><td>11</td><td>🇬🇧 Arvid Lindblad</td><td>Racing Bulls</td><td>0</td><td class="points">4</td></tr>
+                <tr class="red-bull-row"><td>12</td><td>🇫🇷 Isack Hadjar</td><td><span class="team-red">Red Bull</span></td><td>0</td><td class="points">4</td></tr>
+                <tr><td>13</td><td>🇧🇷 Gabriel Bortoleto</td><td>Audi</td><td>0</td><td class="points">2</td></tr>
+                <tr><td>14</td><td>🇪🇸 Carlos Sainz</td><td>Williams</td><td>0</td><td class="points">2</td></tr>
+                <tr><td>15</td><td>🇫🇷 Esteban Ocon</td><td>Haas</td><td>0</td><td class="points">1</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- командный зачёт -->
+    <div class="section-title">🏢 КОМАНДНЫЙ ЗАЧЁТ</div>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Поз.</th><th>Команда</th><th>Победы</th><th>Очки</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Mercedes</td><td>3</td><td class="points">135</td></tr>
+                <tr><td>2</td><td>Ferrari</td><td>0</td><td class="points">90</td></tr>
+                <tr><td>3</td><td>McLaren</td><td>0</td><td class="points">46</td></tr>
+                <tr><td>4</td><td>Haas</td><td>0</td><td class="points">18</td></tr>
+                <tr><td>5</td><td>Alpine</td><td>0</td><td class="points">16</td></tr>
+                <tr class="red-bull-row"><td>6</td><td><span class="team-red">Oracle Red Bull Racing</span></td><td>0</td><td class="points">16</td></tr>
+                <tr><td>7</td><td>Racing Bulls</td><td>0</td><td class="points">14</td></tr>
+                <tr><td>8</td><td>Audi</td><td>0</td><td class="points">2</td></tr>
+                <tr><td>9</td><td>Williams</td><td>0</td><td class="points">2</td></tr>
+                <tr><td>10</td><td>Cadillac</td><td>0</td><td class="points">0</td></tr>
+                <tr><td>11</td><td>Aston Martin</td><td>0</td><td class="points">0</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- календарь 2026 (все этапы) -->
+    <div class="section-title">📅 КАЛЕНДАРЬ СЕЗОНА 2026</div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <!-- краткие факты о регламенте -->
+    <div class="stats-grid" style="margin-top: 32px;">
+        <div class="stat-card">
+            <div class="stat-label">⚙️ новые правила 2026</div>
+            <div class="stat-value">50% электрификации</div>
+            <div class="stat-sub">MGU-K увеличен до 350 кВт, без MGU-H</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🏁 дебютанты сезона</div>
+            <div class="stat-value">Cadillac + Audi</div>
+            <div class="stat-sub">11 команд на стартовой решётке</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🧨 отменённые этапы</div>
+            <div class="stat-value">Бахрейн, Саудовская Аравия</div>
+            <div class="stat-sub">из-за событий на Ближнем Востоке</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 F1 Dashboard · данные обновлены после Гран-при Японии (29 марта 2026) · источники: FIA, Sporting News, Formula 1 official</p>
+        <p style="margin-top: 8px;">🐂 Made for Red Bull fan · следующий выезд — Баку, 25–27 сентября</p>
+    </div>
+</div>
+
+<script>
+    // календарь F1 2026 на основе официальных данных
+    const calendar2026 = [
+        { round: 1, gp: "Австралия", date: "6–8 марта", venue: "Альберт-Парк, Мельбурн", status: "completed", winner: "George Russell" },
+        { round: 2, gp: "Китай (спринт)", date: "13–15 марта", venue: "Шанхай", status: "completed", winner: "Kimi Antonelli (гонка)" },
+        { round: 3, gp: "Япония", date: "27–29 марта", venue: "Судзука", status: "completed", winner: "Kimi Antonelli" },
+        { round: 4, gp: "Бахрейн", date: "10–12 апреля", venue: "Сахир", status: "cancelled", winner: "отменён" },
+        { round: 5, gp: "Саудовская Аравия", date: "17–19 апреля", venue: "Джидда", status: "cancelled", winner: "отменён" },
+        { round: 6, gp: "Майами (спринт)", date: "1–3 мая", venue: "Miami International Autodrome", status: "upcoming", winner: null },
+        { round: 7, gp: "Канада (спринт)", date: "22–24 мая", venue: "Монреаль", status: "upcoming", winner: null },
+        { round: 8, gp: "Монако", date: "5–7 июня", venue: "Монте-Карло", status: "upcoming", winner: null },
+        { round: 9, gp: "Барселона", date: "12–14 июня", venue: "Каталунья", status: "upcoming", winner: null },
+        { round: 10, gp: "Австрия", date: "26–28 июня", venue: "Ред Булл Ринг", status: "upcoming", winner: null },
+        { round: 11, gp: "Великобритания (спринт)", date: "3–5 июля", venue: "Сильверстоун", status: "upcoming", winner: null },
+        { round: 12, gp: "Бельгия", date: "17–19 июля", venue: "Спа-Франкоршам", status: "upcoming", winner: null },
+        { round: 13, gp: "Венгрия", date: "24–26 июля", venue: "Хунгароринг", status: "upcoming", winner: null },
+        { round: 14, gp: "Нидерланды (спринт)", date: "21–23 августа", venue: "Зандворт", status: "upcoming", winner: null },
+        { round: 15, gp: "Италия", date: "4–6 сентября", venue: "Монца", status: "upcoming", winner: null },
+        { round: 16, gp: "Испания (Мадрид)", date: "11–13 сентября", venue: "Madrid Street Circuit", status: "upcoming", winner: null },
+        { round: 17, gp: "Азербайджан", date: "25–27 сентября", venue: "Баку", status: "upcoming", winner: null },
+        { round: 18, gp: "Сингапур (спринт)", date: "9–11 октября", venue: "Марина Бей", status: "upcoming", winner: null },
+        { round: 19, gp: "США", date: "23–25 октября", venue: "КОТА, Остин", status: "upcoming", winner: null },
+        { round: 20, gp: "Мехико", date: "30 окт – 1 ноя", venue: "Автодром им. Родригеса", status: "upcoming", winner: null },
+        { round: 21, gp: "Сан-Паулу", date: "6–8 ноября", venue: "Интерлагос", status: "upcoming", winner: null },
+        { round: 22, gp: "Лас-Вегас", date: "19–21 ноября", venue: "Las Vegas Strip", status: "upcoming", winner: null },
+        { round: 23, gp: "Катар", date: "27–29 ноября", venue: "Лусаил", status: "upcoming", winner: null },
+        { round: 24, gp: "Абу-Даби", date: "4–6 декабря", venue: "Яс-Марина", status: "upcoming", winner: null }
+    ];
+
+    const container = document.getElementById('calendarGrid');
+    if (container) {
+        calendar2026.forEach(race => {
+            const div = document.createElement('div');
+            div.className = `race-item ${race.status === 'completed' ? 'completed' : (race.status === 'upcoming' ? 'upcoming' : '')}`;
+            let statusText = '';
+            if (race.status === 'completed') statusText = '✅ завершён';
+            else if (race.status === 'cancelled') statusText = '❌ отменён';
+            else statusText = '🏁 предстоящий';
+
+            let winnerText = '';
+            if (race.winner && race.status === 'completed') winnerText = `<div style="font-size: 11px; color:#6a85a5;">победитель: ${race.winner}</div>`;
+            if (race.status === 'cancelled') winnerText = `<div style="font-size: 11px; color:#e10600;">гонка отменена</div>`;
+
+            div.innerHTML = `
+                <div>
+                    <div class="race-round">Этап ${race.round}</div>
+                    <div class="race-title">${race.gp}</div>
+                    <div style="font-size: 12px; color:#6a85a5;">${race.venue}</div>
+                    ${winnerText}
+                </div>
+                <div>
+                    <div class="race-status ${race.status === 'upcoming' ? 'status-upcoming' : 'status-completed'}">${statusText}</div>
+                    <div style="font-size: 11px; margin-top: 6px;">${race.date}</div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+</script>
+</body>
+</html>
