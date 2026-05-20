@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=yes, minimal-ui">
-  <title>Видео при загрузке</title>
+  <title>Гифка на весь экран</title>
   <style>
-    /* Базовые сбросы и мобильная оптимизация */
     * {
       margin: 0;
       padding: 0;
@@ -15,92 +14,159 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden; /* Полностью убираем скролл */
-      background: #000; /* Черный фон под видео */
+      overflow: hidden;
+      background: #000;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      touch-action: pan-x pan-y; /* Позволяет жесты, но не мешает видео */
+      touch-action: manipulation;
     }
 
-    /* Контейнер видео занимает весь экран */
-    .video-container {
+    /* Контейнер для гифки */
+    .gif-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      /* Для очень маленьких экранов можно добавить высоту с учетом вырезов, но обычно 100% достаточно */
-      height: 100dvh; /* динамическая высота для мобильных */
+      height: 100dvh;
       z-index: 1;
-      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: #000;
     }
 
-    /* Само видео растягивается на весь экран с сохранением пропорций (покрытие) */
-    .video-container video {
+    /* Сама гифка */
+    .gif-container img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* Видео заполняет экран, обрезая лишнее */
+      object-fit: cover; /* Заполняет экран, обрезая лишнее */
       display: block;
-      background: #000;
-      /* Убираем стандартные контролы на мобильных */
-      pointer-events: none; /* Чтобы случайные нажатия не ставили на паузу, если контролы скрыты */
+      pointer-events: none; /* Чтобы случайные нажатия не мешали */
+      -webkit-user-drag: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    /* Небольшой слой для контента поверх видео, если понадобится что-то добавить */
-    .overlay {
+    /* Панель управления */
+    .control-panel {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      z-index: 2;
-      padding: 16px;
+      z-index: 10;
+      background: rgba(20, 20, 20, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
       display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      pointer-events: none; /* Чтобы клики проходили сквозь к видео, если нужно */
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
     }
 
-    /* Текстовая подсказка (опционально) - стильная, полупрозрачная */
-    .hint {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .button-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .file-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
       color: white;
-      font-size: 14px;
-      padding: 8px 18px;
-      border-radius: 30px;
-      letter-spacing: 0.5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
       text-align: center;
-      pointer-events: auto; /* Чтобы можно было нажать, если добавить действия */
-      transition: opacity 0.5s ease;
-      opacity: 0.8;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    /* Для очень маленьких экранов уменьшаем отступы */
-    @media (max-width: 380px) {
-      .hint {
-        font-size: 12px;
-        padding: 6px 16px;
-        margin-bottom: 12px;
-      }
+    .file-btn:active {
+      background: rgba(255, 255, 255, 0.22);
+      transform: scale(0.97);
     }
 
-    /* Индикатор загрузки, показывается если видео еще не началось */
+    .url-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s;
+      -webkit-appearance: none;
+      min-width: 0;
+    }
+
+    .url-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+    }
+
+    .url-input:focus {
+      border-color: #ff6b9d;
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.3);
+    }
+
+    .apply-btn {
+      background: #ff6b9d;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .apply-btn:active {
+      background: #e55a88;
+      transform: scale(0.96);
+    }
+
+    .hint-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      text-align: center;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    /* Индикатор загрузки */
     .loading-spinner {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 3;
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top: 3px solid white;
+      z-index: 5;
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top: 3px solid #ff6b9d;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none; /* скрыт по умолчанию, показывается через JS при необходимости */
+      animation: spin 0.8s linear infinite;
+      display: none;
       pointer-events: none;
     }
 
@@ -109,182 +175,283 @@
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
-    /* Убираем стандартные элементы управления видео (на всякий случай) */
-    video::-webkit-media-controls {
-      display: none !important;
+    /* Уведомление */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: none;
+      pointer-events: none;
+      text-align: center;
+      max-width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
+
+    .toast.error {
+      border-color: rgba(255, 100, 100, 0.5);
+      background: rgba(200, 50, 50, 0.85);
+    }
+
+    /* Скрытый input для файла */
+    #gifFileInput {
+      display: none;
+    }
+
+    @media (max-width: 380px) {
+      .url-input {
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+      .file-btn, .apply-btn {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Видео контейнер -->
-  <div class="video-container">
-    <!-- 
-      ВАЖНО: Замените src на ссылку вашего видео.
-      Сейчас установлено демо-видео (публичное, бесплатное, природа).
-      Рекомендуется использовать прямую ссылку на mp4 файл.
-      Для мобильной версии видео должно быть оптимизировано (не слишком тяжелое).
-      Добавлены атрибуты для автовоспроизведения без звука, зацикливания и без контролов.
-    -->
-    <video 
-      id="mainVideo"
-      autoplay 
-      muted 
-      loop 
-      playsinline 
-      preload="auto"
-      poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+  <!-- Контейнер гифки -->
+  <div class="gif-container" id="gifContainer">
+    <img 
+      id="mainGif" 
+      src="" 
+      alt="Гифка" 
+      style="display: none;"
     >
-      <!-- ЗАМЕНИТЕ src НА ВАШЕ ВИДЕО -->
-      <source src="https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4" type="video/mp4">
-      
-      <!-- Резервный текст, если видео не загрузится -->
-      Ваш браузер не поддерживает видео.
-    </video>
-  </div>
-
-  <!-- Крутящийся индикатор загрузки (показывается, пока видео буферизуется) -->
-  <div id="loadingSpinner" class="loading-spinner"></div>
-
-  <!-- Небольшая надпись внизу, можно убрать или изменить -->
-  <div class="overlay">
-    <div class="hint" id="statusHint">
-      📱 Загрузка видео...
+    <!-- Заглушка, пока гифка не выбрана -->
+    <div id="placeholder" style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
+      <div style="font-size: 48px; margin-bottom: 16px;">🎞️</div>
+      <div style="font-size: 16px;">Выберите гифку или вставьте ссылку</div>
     </div>
   </div>
 
+  <!-- Спиннер загрузки -->
+  <div id="loadingSpinner" class="loading-spinner"></div>
+
+  <!-- Уведомления -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Панель управления -->
+  <div class="control-panel">
+    <div class="button-row">
+      <button class="file-btn" id="fileBtn">
+        📁 Выбрать файл
+      </button>
+    </div>
+    <div class="button-row">
+      <input 
+        type="url" 
+        class="url-input" 
+        id="urlInput" 
+        placeholder="Или вставьте прямую ссылку на .gif" 
+        autocomplete="off"
+        enterkeyhint="go"
+      >
+      <button class="apply-btn" id="applyUrlBtn">
+        ▶️ Загрузить
+      </button>
+    </div>
+    <div class="hint-text">
+      💡 Поддерживаются файлы .gif и прямые ссылки
+    </div>
+  </div>
+
+  <!-- Скрытый input для выбора файла -->
+  <input type="file" id="gifFileInput" accept="image/gif,.gif">
+
   <script>
     (function() {
-      // Строгий режим для мобильной оптимизации
       'use strict';
 
-      const video = document.getElementById('mainVideo');
+      const mainGif = document.getElementById('mainGif');
+      const placeholder = document.getElementById('placeholder');
       const spinner = document.getElementById('loadingSpinner');
-      const hint = document.getElementById('statusHint');
+      const toast = document.getElementById('toast');
+      const fileBtn = document.getElementById('fileBtn');
+      const gifFileInput = document.getElementById('gifFileInput');
+      const urlInput = document.getElementById('urlInput');
+      const applyUrlBtn = document.getElementById('applyUrlBtn');
 
-      // Функция для обновления состояния подсказки
-      function updateHint(text, showSpinner = false) {
-        if (hint) {
-          hint.textContent = text;
-        }
-        if (spinner) {
-          spinner.style.display = showSpinner ? 'block' : 'none';
-        }
+      let currentGifUrl = '';
+
+      // Функция показа спиннера
+      function showSpinner(show) {
+        spinner.style.display = show ? 'block' : 'none';
       }
 
-      // Проверка, что видео элемент существует
-      if (!video) {
-        updateHint('⚠️ Ошибка: видео не найдено', false);
-        return;
+      // Функция показа уведомления
+      function showToast(message, isError = false) {
+        toast.textContent = message;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.style.display = 'block';
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+          toast.style.display = 'none';
+        }, 3000);
       }
 
-      // Показываем спиннер сразу при загрузке
-      updateHint('🎬 Загружаем видео...', true);
-
-      // Обработчик, когда видео достаточно загружено для воспроизведения
-      video.addEventListener('canplay', function() {
-        updateHint('▶️ Видео готово', false);
-        // Пытаемся запустить воспроизведение (на мобильных требуется взаимодействие, но autoplay muted обычно работает)
-        attemptPlay();
-      });
-
-      // Обработчик начала воспроизведения
-      video.addEventListener('play', function() {
-        updateHint('📱 Видео запущено', false);
-        // Скрываем спиннер после начала воспроизведения
-        if (spinner) spinner.style.display = 'none';
-      });
-
-      // Обработчик паузы (если пользователь как-то поставил на паузу, но контролов нет, маловероятно)
-      video.addEventListener('pause', function() {
-        // Если видео не закончилось и не в буфере, пробуем перезапустить
-        if (video.readyState >= 2 && !video.ended) {
-          // Возможно, была случайная пауза, пробуем воспроизвести снова
-          attemptPlay();
+      // Функция отображения гифки
+      function displayGif(url) {
+        if (!url) {
+          showToast('Не удалось получить гифку', true);
+          return;
         }
-      });
 
-      // Обработка ошибок загрузки видео
-      video.addEventListener('error', function(e) {
-        console.error('Ошибка загрузки видео:', e);
-        updateHint('⚠️ Не удалось загрузить видео', false);
-        // Показываем черный экран, но hint остается
-      }, true);
+        showSpinner(true);
+        
+        // Скрываем заглушку
+        placeholder.style.display = 'none';
+        
+        // Показываем изображение
+        mainGif.style.display = 'block';
+        
+        // Устанавливаем источник
+        mainGif.src = url;
+        currentGifUrl = url;
+        
+        // Когда гифка загрузится
+        mainGif.onload = function() {
+          showSpinner(false);
+          showToast('✅ Гифка загружена');
+        };
+        
+        // Если ошибка загрузки
+        mainGif.onerror = function() {
+          showSpinner(false);
+          showToast('❌ Не удалось загрузить гифку. Проверьте файл или ссылку.', true);
+          // Показываем заглушку обратно
+          placeholder.style.display = 'block';
+          mainGif.style.display = 'none';
+          mainGif.src = '';
+          currentGifUrl = '';
+        };
 
-      // Обработка, если видео забуферилось и ждет
-      video.addEventListener('waiting', function() {
-        updateHint('⏳ Буферизация...', true);
-      });
-
-      video.addEventListener('playing', function() {
-        updateHint('📱 Видео', false);
-        if (spinner) spinner.style.display = 'none';
-      });
-
-      // Функция для безопасной попытки воспроизведения
-      function attemptPlay() {
-        if (video.paused) {
-          var playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.then(function() {
-              // Воспроизведение началось успешно
-              if (spinner) spinner.style.display = 'none';
-            }).catch(function(error) {
-              // Автовоспроизведение было заблокировано (редко на современных мобильных с muted)
-              console.warn('Автовоспроизведение заблокировано:', error);
-              updateHint('👆 Нажмите для запуска', false);
-              
-              // Добавляем обработчик клика по всему экрану для запуска видео
-              const resumeOnTouch = function() {
-                video.play().then(function() {
-                  updateHint('📱 Видео', false);
-                }).catch(function(e) {
-                  console.error('Не удалось запустить видео после касания:', e);
-                });
-                // Удаляем обработчик после первого касания
-                document.body.removeEventListener('click', resumeOnTouch);
-                document.body.removeEventListener('touchstart', resumeOnTouch);
-              };
-              
-              document.body.addEventListener('click', resumeOnTouch);
-              document.body.addEventListener('touchstart', resumeOnTouch);
-            });
+        // Таймаут на случай зависания
+        setTimeout(() => {
+          if (spinner.style.display === 'block' && !mainGif.complete) {
+            showSpinner(false);
+            showToast('⏳ Загрузка занимает много времени...', false);
           }
-        }
+        }, 10000);
       }
 
-      // Дополнительно: при загрузке страницы пробуем воспроизвести, если видео уже готово
-      if (video.readyState >= 2) {
-        attemptPlay();
-      }
-
-      // На случай, если видео уже в процессе загрузки, но canplay еще не сработал
-      video.load();
-
-      // Для мобильных Safari иногда нужно явно вызвать play после загрузки
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          attemptPlay();
-        }, 100);
+      // Обработка выбора файла из галереи
+      fileBtn.addEventListener('click', () => {
+        gifFileInput.click();
       });
 
-      // Обработка видимости страницы (если пользователь свернул браузер и вернулся)
-      document.addEventListener('visibilitychange', function() {
-        if (!document.hidden && video.paused && video.readyState >= 2) {
-          attemptPlay();
+      gifFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Проверяем, что это gif
+        if (!file.type.includes('gif') && !file.name.toLowerCase().endsWith('.gif')) {
+          showToast('⚠️ Пожалуйста, выберите файл в формате GIF', true);
+          gifFileInput.value = '';
+          return;
+        }
+
+        // Создаем локальный URL для файла
+        const localUrl = URL.createObjectURL(file);
+        
+        // Если был предыдущий локальный URL, освобождаем память
+        if (currentGifUrl && currentGifUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(currentGifUrl);
+        }
+        
+        displayGif(localUrl);
+        
+        // Очищаем поле ввода ссылки
+        urlInput.value = '';
+        
+        // Сбрасываем input file, чтобы можно было выбрать тот же файл повторно
+        gifFileInput.value = '';
+      });
+
+      // Обработка загрузки по ссылке
+      function loadFromUrl() {
+        const url = urlInput.value.trim();
+        if (!url) {
+          showToast('Вставьте ссылку на гифку', true);
+          return;
+        }
+
+        // Простая проверка, что ссылка похожа на гифку
+        if (!url.toLowerCase().includes('.gif') && !url.startsWith('http')) {
+          showToast('⚠️ Ссылка должна вести на .gif файл', true);
+          return;
+        }
+
+        // Если был предыдущий локальный URL, освобождаем память
+        if (currentGifUrl && currentGifUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(currentGifUrl);
+        }
+
+        displayGif(url);
+      }
+
+      applyUrlBtn.addEventListener('click', loadFromUrl);
+
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          loadFromUrl();
         }
       });
 
-      // Убираем стандартный вызов контекстного меню на долгом нажатии (чтобы не мешало)
-      video.addEventListener('contextmenu', function(e) {
+      // Автоматически пробуем вставить из буфера обмена при фокусе на поле
+      urlInput.addEventListener('focus', async () => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.readText) {
+            const text = await navigator.clipboard.readText();
+            if (text && text.toLowerCase().includes('.gif') && !urlInput.value) {
+              // Если в буфере ссылка на гифку, вставляем её
+              urlInput.value = text;
+              showToast('📋 Ссылка вставлена из буфера обмена');
+            }
+          }
+        } catch (e) {
+          // Нет доступа к буферу
+        }
+      });
+
+      // Поддержка перетаскивания файла на страницу (для десктопа, но и на некоторых мобильных работает)
+      document.addEventListener('dragover', (e) => {
         e.preventDefault();
+        e.stopPropagation();
       });
 
-      // Инициализация: сразу показываем спиннер
-      updateHint('🎬 Загрузка...', true);
+      document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const file = e.dataTransfer.files[0];
+        if (file && (file.type.includes('gif') || file.name.toLowerCase().endsWith('.gif'))) {
+          const localUrl = URL.createObjectURL(file);
+          if (currentGifUrl && currentGifUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(currentGifUrl);
+          }
+          displayGif(localUrl);
+          urlInput.value = '';
+        } else {
+          showToast('⚠️ Перетащите файл .gif', true);
+        }
+      });
 
+      // Демо при загрузке (раскомментируйте, если нужна гифка по умолчанию)
+      // const demoGif = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWtvbmd4ZHg3eTJtYzV0eTl0eHh4eHh4eHh4eHh4eHh4eHh4eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsQ8k0jXq8XjX2/giphy.gif';
+      // displayGif(demoGif);
+
+      console.log('🎞️ Сайт для гифки готов. Выберите файл или вставьте ссылку.');
     })();
   </script>
 </body>
